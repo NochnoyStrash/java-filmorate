@@ -11,6 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 
 public class FilmControllerValidationTest {
+    static String MAX_WORDS = "fajlsjdflajjlfa;lnl;lfjlaf;laf;jaflalfaljlfjlajlfjljfj;lfl;a" +
+            "klfkladfadf;ljdfalkn;lkn;akvnkdvka;jndlanfdkljalkfjlkjfkajfjsdfljl;" +
+            "fja;ldf;alknfd;laknf;laf;lakf;lkafkllfl;alakdf;alfl;fl;fla;ldfja;lkj" +
+            "dffadfadfafaffajkvhjkjkhkjlkgkhvjbknlml;l;;lgvkhjbjnkml''lk;kjlkhgjjbn" +
+            "jhjvjbknlm;,'mnbvcvvbjnklk;l;kl;jkhgfcgvhbjnk;ml;',;mnlbkvjhcgxhcjvhbkj";
     FilmController controller;
     @BeforeEach
     public void beforeEach() {
@@ -18,7 +23,7 @@ public class FilmControllerValidationTest {
     }
 
     @Test
-    public void createFilm() throws ValidationException {
+    public void testCreateFilm()  {
         Film film = Film.builder()
                 .name("Моя прекрасная няня")
                 .description("фильм про молодую няню")
@@ -44,11 +49,7 @@ public class FilmControllerValidationTest {
 
         Film film2 = Film.builder()
                 .name("Сверхъествественное")
-                .description("fajlsjdflajjlfa;lnl;lfjlaf;laf;jaflalfaljlfjlajlfjljfj;lfl;a" +
-                        "klfkladfadf;ljdfalkn;lkn;akvnkdvka;jndlanfdkljalkfjlkjfkajfjsdfljl;" +
-                        "fja;ldf;alknfd;laknf;laf;lakf;lkafkllfl;alakdf;alfl;fl;fla;ldfja;lkj" +
-                        "dffadfadfafaffajkvhjkjkhkjlkgkhvjbknlml;l;;lgvkhjbjnkml''lk;kjlkhgjjbn" +
-                        "jhjvjbknlm;,'mnbvcvvbjnklk;l;kl;jkhgfcgvhbjnk;ml;',;mnlbkvjhcgxhcjvhbkj")
+                .description(MAX_WORDS)
                 .duration(158)
                 .releaseDate(LocalDate.of(1958,6,8))
                 .build();
@@ -90,7 +91,7 @@ public class FilmControllerValidationTest {
     }
 
     @Test
-    public void updateFilm() throws ValidationException {
+    public void testUpdateFilm() {
         Film film = Film.builder()
                 .name("Моя прекрасная няня")
                 .description("фильм про молодую няню")
@@ -109,10 +110,7 @@ public class FilmControllerValidationTest {
         assertEquals("Фильм не прошел валидацию", e.getMessage());
 
         film.setName("Варяг");
-        film.setDescription("крутышка02,крутышка02,крутышка02,крутышка02.крутышка02,крутышка02," +
-                "крутышка02,крутышка02,крутышка02,крутышка02,крутышка02,крутышка02,крутышка02," +
-                "крутышка02,крутышка02,крутышка02,крутышка02,крутышка02,крутышка02,крутышка02," +
-                "крутышка02,крутышка02,крутышка02,крутышка02,крутышка02,крутышка02,крутышка02");
+        film.setDescription(MAX_WORDS);
         final ValidationException ex = assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {

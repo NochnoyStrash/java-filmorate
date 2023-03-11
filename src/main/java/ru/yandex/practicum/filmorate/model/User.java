@@ -20,5 +20,5 @@ public class User {
     private String name;
     @EqualsAndHashCode.Exclude
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate birthday;
+    private LocalDate birthday;
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    int id = 1;
+    private int id = 1;
 
     private List<Film> films = new ArrayList<>();
 
@@ -25,32 +25,8 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) throws ValidationException {
-        if (film.getName() != null) {
-            if(film.getName().isBlank()) {
-                log.info("Фильм с названием  {} не прошел валидацию", film.getName());
-                throw new ValidationException("Фильм не прошел валидацию");
-            }
-        }
-        if(film.getDescription() != null) {
-            if (film.getDescription().length() > 200) {
-                log.info("Фильм с  не прошел валидацию описания");
-                throw new ValidationException("Фильм не прошел валидацию");
-            }
-        }
-
-        if (film.getReleaseDate() != null) {
-            if (film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))) {
-                log.info("Фильм не прошел валидацию даты создания");
-                throw new ValidationException("Фильм не прошел валидацию");
-            }
-
-        }
-
-        if (film.getDuration() < 0) {
-                log.info("Фильм не прошел валидацию продолжительности");
-                throw new ValidationException("Фильм не прошел валидацию");
-        }
+    public Film addFilm(@RequestBody Film film) {
+        validationFilms(film);
 
         if(films.contains(film)) {
             log.info("Фильм  уже есть в списке");
@@ -64,8 +40,19 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) throws ValidationException {
-        if (film.getName()!= null) {
+    public Film updateFilm(@RequestBody Film film)  {
+        validationFilms(film);
+        if(!films.contains(film)) {
+            log.info("Фильм с id {} не найден", film.getId());
+            throw new ValidationException("Фильм не найден");
+        }
+        films.remove(film);
+        films.add(film);
+        return film;
+    }
+
+    private void validationFilms(Film film) {
+        if (film.getName() != null) {
             if(film.getName().isBlank()) {
                 log.info("Фильм с названием  {} не прошел валидацию", film.getName());
                 throw new ValidationException("Фильм не прошел валидацию");
@@ -90,13 +77,6 @@ public class FilmController {
             log.info("Фильм не прошел валидацию продолжительности");
             throw new ValidationException("Фильм не прошел валидацию");
         }
-        if(!films.contains(film)) {
-            log.info("Фильм с id {} не найден", film.getId());
-            throw new ValidationException("Фильм не найден");
-        }
-        films.remove(film);
-        films.add(film);
-        return film;
     }
 
 }

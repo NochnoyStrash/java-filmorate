@@ -23,6 +23,6 @@ public class Film {
 
     @EqualsAndHashCode.Exclude
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
 
 }
