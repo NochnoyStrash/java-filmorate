@@ -26,7 +26,7 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        validationFilms(film);
+        validateFilms(film);
 
         if(films.contains(film)) {
             log.info("Фильм  уже есть в списке");
@@ -41,7 +41,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film)  {
-        validationFilms(film);
+        validateFilms(film);
         if(!films.contains(film)) {
             log.info("Фильм с id {} не найден", film.getId());
             throw new ValidationException("Фильм не найден");
@@ -51,31 +51,31 @@ public class FilmController {
         return film;
     }
 
-    private void validationFilms(Film film) {
+    private void validateFilms(Film film) {
         if (film.getName() != null) {
             if(film.getName().isBlank()) {
-                log.info("Фильм с названием  {} не прошел валидацию", film.getName());
-                throw new ValidationException("Фильм не прошел валидацию");
+                log.info("Фильм не прошел валидацию. Название не может быть пустым  ");
+                throw new ValidationException("Фильм не прошел валидацию. Название не может быть пустым  ");
             }
         }
         if(film.getDescription() != null) {
             if (film.getDescription().length() > 200) {
-                log.info("Фильм с  не прошел валидацию описания");
-                throw new ValidationException("Фильм не прошел валидацию");
+                log.info("Фильм {}  не прошел валидацию. В описании более 200 символов", film.getName());
+                throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Более 200 символов");
             }
         }
 
         if (film.getReleaseDate() != null) {
             if (film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))) {
-                log.info("Фильм не прошел валидацию даты создания");
-                throw new ValidationException("Фильм не прошел валидацию");
+                log.info("Фильм {} не прошел валидацию.Дата создания должна быть позже 1895.12.28", film.getName());
+                throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию.Дата создания должна быть позже 1895.12.28");
             }
 
         }
 
         if (film.getDuration() < 0) {
-            log.info("Фильм не прошел валидацию продолжительности");
-            throw new ValidationException("Фильм не прошел валидацию");
+            log.info("Фильм {} не прошел валидацию. Продолжительность не может быть отрицательной", film.getName());
+            throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Продожительность не может быть отрицательной");
         }
     }
 

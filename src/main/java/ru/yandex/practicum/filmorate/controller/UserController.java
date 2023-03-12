@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping("/users")
     public User createUser(@RequestBody User user) {
-        validationUser(user);
+        validateUser(user);
         if (users.contains(user)) {
             log.info("Пользователь {} уже есть в базе", user.getLogin());
             throw new ValidationException("Пользователь уже есть в базе");
@@ -39,7 +39,7 @@ public class UserController {
 
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) {
-        validationUser(user);
+        validateUser(user);
         if(!users.contains(user)) {
             log.info("Пользователь {} не найден", user.getLogin());
             throw new ValidationException("Пользователь " + user.getLogin() + "не найден");
@@ -50,21 +50,21 @@ public class UserController {
         return user;
     }
 
-    private void validationUser(User user) {
+    private void validateUser(User user) {
         if(user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ") ) {
-            log.info("Валидация {} не пройдена", user.getLogin());
-            throw new ValidationException("Валидация не пройдена");
+            log.info("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
+            throw new ValidationException("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
         }
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.info("Валидация {} не пройдена", user.getEmail());
-            throw new ValidationException("Валидация не пройдена");
+            log.info("Валидация {} не пройдена. Введите корректный email", user.getEmail());
+            throw new ValidationException("Валидация не пройдена. Введите корректный email");
         }
 
 
         if (user.getBirthday() != null) {
             if (user.getBirthday().isAfter(LocalDate.now())) {
-                log.info("Валидация {} не пройдена", user.getBirthday());
-                throw new ValidationException("Валидация не пройдена");
+                log.info("Валидация {} не пройдена. День рождения не может быть позже текущего времени", user.getBirthday());
+                throw new ValidationException("Валидация не пройдена. День рождения не может быть позже текущего времени");
             }
         }
         if (user.getName() == null || user.getName().isBlank()) {
