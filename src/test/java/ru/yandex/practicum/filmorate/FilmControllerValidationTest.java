@@ -45,7 +45,7 @@ public class FilmControllerValidationTest {
                 controller.addFilm(film1);
             }
         });
-        assertEquals("Фильм не прошел валидацию", e.getMessage());
+        assertEquals("Фильм не прошел валидацию. Название не может быть пустым", e.getMessage());
 
         Film film2 = Film.builder()
                 .name("Сверхъествественное")
@@ -59,7 +59,7 @@ public class FilmControllerValidationTest {
                 controller.addFilm(film2);
             }
         });
-        assertEquals("Фильм не прошел валидацию", ex.getMessage());
+        assertEquals("Фильм " + film2.getName() + " не прошел валидацию. Более 200 символов", ex.getMessage());
 
         Film film3 = Film.builder()
                 .name("Дача")
@@ -73,7 +73,7 @@ public class FilmControllerValidationTest {
                 controller.addFilm(film3);
             }
         });
-        assertEquals("Фильм не прошел валидацию", exep.getMessage());
+        assertEquals("Фильм " + film3.getName() + " не прошел валидацию.Дата создания должна быть позже 1895.12.28", exep.getMessage());
 
         Film film4 = Film.builder()
                 .name("Ночь")
@@ -87,7 +87,7 @@ public class FilmControllerValidationTest {
                 controller.addFilm(film4);
             }
         });
-        assertEquals("Фильм не прошел валидацию", exeption.getMessage());
+        assertEquals("Фильм " + film4.getName() + " не прошел валидацию. Продожительность не может быть отрицательной", exeption.getMessage());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class FilmControllerValidationTest {
                 controller.updateFilm(film);
             }
         });
-        assertEquals("Фильм не прошел валидацию", e.getMessage());
+        assertEquals("Фильм не прошел валидацию. Название не может быть пустым", e.getMessage());
 
         film.setName("Варяг");
         film.setDescription(MAX_WORDS);
@@ -117,7 +117,7 @@ public class FilmControllerValidationTest {
                 controller.updateFilm(film);
             }
         });
-        assertEquals("Фильм не прошел валидацию", ex.getMessage());
+        assertEquals("Фильм " + film.getName() + " не прошел валидацию. Более 200 символов", ex.getMessage());
 
         film.setDescription("там дигидам дам дам");
         film.setReleaseDate(LocalDate.of(1856,10,16));
@@ -127,7 +127,7 @@ public class FilmControllerValidationTest {
                 controller.updateFilm(film);
             }
         });
-        assertEquals("Фильм не прошел валидацию", exep.getMessage());
+        assertEquals("Фильм " + film.getName() + " не прошел валидацию.Дата создания должна быть позже 1895.12.28", exep.getMessage());
 
         film.setReleaseDate(LocalDate.of(2009,12,31));
         film.setDuration(-90);
@@ -137,7 +137,7 @@ public class FilmControllerValidationTest {
                 controller.updateFilm(film);
             }
         });
-        assertEquals("Фильм не прошел валидацию", exeption.getMessage());
+        assertEquals("Фильм " + film.getName() + " не прошел валидацию. Продожительность не может быть отрицательной", exeption.getMessage());
 
 
 

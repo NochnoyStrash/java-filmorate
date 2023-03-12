@@ -43,7 +43,7 @@ public class UserControllerValidationTest {
                 controller.createUser(user1);
             }
         });
-        assertEquals("Валидация не пройдена", e.getMessage());
+        assertEquals("Валидация не пройдена. Login не может быть пустым или содержать пробелы", e.getMessage());
 
         User user2 = User.builder()
                 .login("Promo")
@@ -56,7 +56,7 @@ public class UserControllerValidationTest {
                 controller.createUser(user2);
             }
         });
-        assertEquals("Валидация не пройдена", ex.getMessage());
+        assertEquals("Валидация не пройдена. Введите корректный email", ex.getMessage());
 
         User user3 = User.builder()
                 .login("Trava")
@@ -69,7 +69,7 @@ public class UserControllerValidationTest {
                 controller.createUser(user3);
             }
         });
-        assertEquals("Валидация не пройдена", ex.getMessage());
+        assertEquals("Валидация не пройдена. День рождения не может быть позже текущего времени", exep.getMessage());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class UserControllerValidationTest {
                 controller.updateUser(user);
             }
         });
-        assertEquals("Валидация не пройдена", e.getMessage());
+        assertEquals("Валидация не пройдена. Login не может быть пустым или содержать пробелы", e.getMessage());
 
         user.setLogin("Tunder");
         user.setName("");
@@ -101,7 +101,7 @@ public class UserControllerValidationTest {
                 controller.updateUser(user);
             }
         });
-        assertEquals("Валидация не пройдена", ex.getMessage());
+        assertEquals("Валидация не пройдена. Введите корректный email", ex.getMessage());
         user.setEmail("panama@mail.ru");
         user.setBirthday(LocalDate.of(2028,5,16));
         final ValidationException exep = assertThrows(ValidationException.class, new Executable() {
@@ -110,7 +110,7 @@ public class UserControllerValidationTest {
                 controller.updateUser(user);
             }
         });
-        assertEquals("Валидация не пройдена", exep.getMessage());
+        assertEquals("Валидация не пройдена. День рождения не может быть позже текущего времени", exep.getMessage());
 
     }
 }

@@ -54,8 +54,8 @@ public class FilmController {
     private void validateFilms(Film film) {
         if (film.getName() != null) {
             if(film.getName().isBlank()) {
-                log.info("Фильм не прошел валидацию. Название не может быть пустым  ");
-                throw new ValidationException("Фильм не прошел валидацию. Название не может быть пустым  ");
+                log.info("Фильм не прошел валидацию. Название не может быть пустым");
+                throw new ValidationException("Фильм не прошел валидацию. Название не может быть пустым");
             }
         }
         if(film.getDescription() != null) {
