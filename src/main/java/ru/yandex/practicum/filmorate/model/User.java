@@ -7,11 +7,15 @@ import lombok.Value;
 
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
 public class User {
     private int id;
+    @EqualsAndHashCode.Exclude
+    private Set<Integer> friends;
     @EqualsAndHashCode.Exclude
     private String email;
     @EqualsAndHashCode.Exclude
