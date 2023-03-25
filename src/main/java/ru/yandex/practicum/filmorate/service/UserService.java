@@ -21,32 +21,36 @@ public class UserService {
     }
 
     public User addFriends(Integer userId1, Integer userId2) {
+        User user1;
+        User user2;
         try {
-            storage.getUser(userId1);
-            storage.getUser(userId2);
+            user1 = storage.getUser(userId1);
+            user2 = storage.getUser(userId2);
         }  catch (UserNotFounfException e) {
         throw new UserNotFounfException(e.getMessage());
     }
 
-            if (storage.getUser(userId1).getFriends() == null) {
-                storage.getUser(userId1).setFriends(new HashSet<>());
+            if (user1.getFriends() == null) {
+                user1.setFriends(new HashSet<>());
             }
-            storage.getUser(userId1).getFriends().add(userId2);
-            if (storage.getUser(userId2).getFriends() == null) {
-                storage.getUser(userId2).setFriends(new HashSet<>());
+            user1.getFriends().add(userId2);
+            if (user2.getFriends() == null) {
+                user2.setFriends(new HashSet<>());
             }
-            storage.getUser(userId2).getFriends().add(userId1);
+            user2.getFriends().add(userId1);
             return storage.getUser(userId1);
     }
 
     public User deleteFriends(Integer userId1, Integer userId2) {
-        if (storage.getUser(userId1).getFriends() == null) {
-            storage.getUser(userId1).setFriends(new HashSet<>());
-        } else if (storage.getUser(userId2).getFriends() == null) {
-            storage.getUser(userId2).setFriends(new HashSet<>());
+        User user1 = storage.getUser(userId1);
+        User user2 = storage.getUser(userId2);
+        if (user1.getFriends() == null) {
+            user1.setFriends(new HashSet<>());
+        } else if (user2.getFriends() == null) {
+            user2.setFriends(new HashSet<>());
         } else {
-            storage.getUser(userId1).getFriends().remove(userId2);
-            storage.getUser(userId2).getFriends().remove(userId1);
+            user1.getFriends().remove(userId2);
+            user2.getFriends().remove(userId1);
         }
         return storage.getUser(userId1);
 
@@ -56,23 +60,20 @@ public class UserService {
         ArrayList<User> friendsByUser = new ArrayList<>();
         User user = storage.getUser(userId);
 
-        for (Integer ids : user.getFriends()) {
-            if (ids > 0) {
-                friendsByUser.add(storage.getUser(ids));
-            }
-        }
+        user.getFriends().stream().forEach((id) -> {
+            if (id > 0)
+            friendsByUser.add(storage.getUser(id));
+        });
+
         return friendsByUser;
     }
 
     public List<User> getCommonFriend(Integer userId1, Integer userId2) {
         ArrayList<User> commonFriends = new ArrayList<>();
         User user = storage.getUser(userId2);
-        for (Integer ids : user.getFriends())
-            if(ids > 1) {
-                if (storage.getUser(ids).getFriends().contains(userId1)) {
-                    commonFriends.add(storage.getUser(ids));
-                }
-            }
+        user.getFriends().stream().filter(i -> i >1)
+                .filter(i -> storage.getUser(i).getFriends().contains(userId1))
+                .forEach(i -> commonFriends.add(storage.getUser(i)));
         return commonFriends;
     }
 

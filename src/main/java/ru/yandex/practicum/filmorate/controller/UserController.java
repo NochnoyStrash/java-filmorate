@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 public class UserController {
-    UserService service;
+    private UserService service;
     @Autowired
     public UserController(UserService  service) {
         this.service = service;

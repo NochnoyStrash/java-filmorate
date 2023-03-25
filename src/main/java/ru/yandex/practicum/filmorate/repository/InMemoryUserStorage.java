@@ -40,9 +40,10 @@ public class InMemoryUserStorage implements  UserStorage{
 
     public User updateUser( User user) {
         validateUser(user);
+        String login = user.getLogin();
         if(!users.contains(user)) {
-            log.info("Пользователь {} не найден", user.getLogin());
-            throw new UserNotFounfException("Пользователь " + user.getLogin() + "не найден");
+            log.info("Пользователь {} не найден", login);
+            throw new UserNotFounfException("Пользователь " + login + "не найден");
         }
         users.remove(user);
         users.add(user);

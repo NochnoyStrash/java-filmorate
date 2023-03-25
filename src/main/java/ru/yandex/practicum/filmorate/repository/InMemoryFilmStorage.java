@@ -17,6 +17,7 @@ import java.util.List;
 @Component
 public class InMemoryFilmStorage implements  FilmStorage{
     private int id = 1;
+    private static int MAX_LENTH_DESCRIPTION = 200;
 
     private List<Film> films = new ArrayList<>();
 
@@ -64,7 +65,7 @@ public class InMemoryFilmStorage implements  FilmStorage{
             }
         }
         if(film.getDescription() != null) {
-            if (film.getDescription().length() > 200) {
+            if (film.getDescription().length() > MAX_LENTH_DESCRIPTION) {
                 log.info("Фильм {}  не прошел валидацию. В описании более 200 символов", film.getName());
                 throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Более 200 символов");
             }
