@@ -70,7 +70,7 @@ public class UserService {
     public List<User> getCommonFriend(Integer userId1, Integer userId2) {
         ArrayList<User> commonFriends = new ArrayList<>();
         User user = storage.getUser(userId2);
-        user.getFriends().stream().filter(i -> i >1)
+        user.getFriends().stream().filter(i -> i > 1)
                 .filter(i -> storage.getUser(i).getFriends().contains(userId1))
                 .forEach(i -> commonFriends.add(storage.getUser(i)));
         return commonFriends;
