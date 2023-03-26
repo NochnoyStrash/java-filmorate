@@ -9,9 +9,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements  FilmStorage{
+public class InMemoryFilmStorage implements  FilmStorage  {
     private int id = 1;
     private static int MAX_LENTH_DESCRIPTION = 200;
 
@@ -25,7 +26,7 @@ public class InMemoryFilmStorage implements  FilmStorage{
     public Film addFilm(Film film) {
         validateFilms(film);
 
-        if(films.contains(film)) {
+        if (films.contains(film)) {
             log.info("Фильм  уже есть в списке");
             throw new ValidationException("Фильм  уже есть в списке");
         }
@@ -38,7 +39,7 @@ public class InMemoryFilmStorage implements  FilmStorage{
 
     public Film updateFilm(Film film)  {
         validateFilms(film);
-        if(!films.contains(film)) {
+        if (!films.contains(film)) {
             log.info("Фильм с id {} не найден", film.getId());
             throw new FilmNotFoundException("Фильм не найден");
         }
@@ -56,12 +57,12 @@ public class InMemoryFilmStorage implements  FilmStorage{
 
     private void validateFilms(Film film) {
         if (film.getName() != null) {
-            if(film.getName().isBlank()) {
+            if (film.getName().isBlank()) {
                 log.info("Фильм не прошел валидацию. Название не может быть пустым");
                 throw new ValidationException("Фильм не прошел валидацию. Название не может быть пустым");
             }
         }
-        if(film.getDescription() != null) {
+        if (film.getDescription() != null) {
             if (film.getDescription().length() > MAX_LENTH_DESCRIPTION) {
                 log.info("Фильм {}  не прошел валидацию. В описании более 200 символов", film.getName());
                 throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Более 200 символов");
