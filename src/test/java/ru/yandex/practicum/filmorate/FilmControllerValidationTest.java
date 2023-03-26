@@ -12,10 +12,10 @@ import ru.yandex.practicum.filmorate.repository.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.repository.UserStorage;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
-import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerValidationTest {
     static String MAX_WORDS = "fajlsjdflajjlfa;lnl;lfjlaf;laf;jaflalfaljlfjlajlfjljfj;lfl;a" +
@@ -24,11 +24,12 @@ public class FilmControllerValidationTest {
             "dffadfadfafaffajkvhjkjkhkjlkgkhvjbknlml;l;;lgvkhjbjnkml''lk;kjlkhgjjbn" +
             "jhjvjbknlm;,'mnbvcvvbjnklk;l;kl;jkhgfcgvhbjnk;ml;',;mnlbkvjhcgxhcjvhbkj";
     FilmController controller;
+
     @BeforeEach
     public void beforeEach() {
         FilmStorage filmStorage = new InMemoryFilmStorage();
         UserStorage userStorage = new InMemoryUserStorage();
-        controller = new FilmController( new FilmService(filmStorage,userStorage));
+        controller = new FilmController(new FilmService(filmStorage,userStorage));
     }
 
     @Test
