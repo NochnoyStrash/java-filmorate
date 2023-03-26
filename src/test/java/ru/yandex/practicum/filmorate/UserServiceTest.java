@@ -17,6 +17,7 @@ public class UserServiceTest {
     UserService userService;
     User user;
     User user1;
+
     @BeforeEach
     public void beforeEach() {
         userService = new UserService(new InMemoryUserStorage());
