@@ -113,7 +113,7 @@ public class FilmServiceTest {
 
         List<Film> mostPoularFilm = filmService.getPopularFilm(1);
         assertEquals(film1, mostPoularFilm.get(0));
-        assertEquals( mostPoularFilm.size(),1);
+        assertEquals(mostPoularFilm.size(),1);
 
         final FilmNotFoundException ex = assertThrows(FilmNotFoundException.class, new Executable() {
             @Override
