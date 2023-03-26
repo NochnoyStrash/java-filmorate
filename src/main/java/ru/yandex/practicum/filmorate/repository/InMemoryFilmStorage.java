@@ -53,6 +53,7 @@ public class InMemoryFilmStorage implements  FilmStorage{
                 .orElseThrow(() -> new FilmNotFoundException("Фильм с таким " + id + " не найден."));
 
     }
+
     private void validateFilms(Film film) {
         if (film.getName() != null) {
             if(film.getName().isBlank()) {

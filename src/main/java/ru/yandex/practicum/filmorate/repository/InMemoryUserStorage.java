@@ -37,7 +37,7 @@ public class InMemoryUserStorage implements  UserStorage{
     public User updateUser( User user) {
         validateUser(user);
         String login = user.getLogin();
-        if(!users.contains(user)) {
+        if (!users.contains(user)) {
             log.info("Пользователь {} не найден", login);
             throw new UserNotFounfException("Пользователь " + login + "не найден");
         }
@@ -46,6 +46,7 @@ public class InMemoryUserStorage implements  UserStorage{
         log.info("Пользователь {} успешно обновлен", user.getLogin());
         return user;
     }
+
     public User getUser(Integer id) {
         return users.stream()
                 .filter(u -> u.getId() == id)
@@ -53,7 +54,7 @@ public class InMemoryUserStorage implements  UserStorage{
     }
 
     private void validateUser(User user) {
-        if(user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ") ) {
+        if (user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ") ) {
             log.info("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
             throw new ValidationException("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
         }
