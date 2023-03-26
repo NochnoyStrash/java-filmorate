@@ -12,11 +12,11 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class InMemoryUserStorage implements  UserStorage{
+public class InMemoryUserStorage implements  UserStorage {
     private int id = 1;
     private List<User> users = new ArrayList<>();
 
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         log.debug("Пользователей в списке: {}", users.size());
         return users;
     }
@@ -34,7 +34,7 @@ public class InMemoryUserStorage implements  UserStorage{
         return user;
     }
 
-    public User updateUser( User user) {
+    public User updateUser(User user) {
         validateUser(user);
         String login = user.getLogin();
         if (!users.contains(user)) {
@@ -54,7 +54,7 @@ public class InMemoryUserStorage implements  UserStorage{
     }
 
     private void validateUser(User user) {
-        if (user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ") ) {
+        if (user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ")) {
             log.info("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
             throw new ValidationException("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
         }
