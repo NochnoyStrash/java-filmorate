@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -14,61 +14,72 @@ import java.util.List;
 
 @Slf4j
 public class UserController {
-    private int id = 1;
-    private List<User> users = new ArrayList<>();
+    private UserService service;
+
+    @Autowired
+    public UserController(UserService  service) {
+        this.service = service;
+    }
 
     @GetMapping("/users")
-    public List<User> getUsers(){
-        log.debug("Пользователей в списке: {}", users.size());
-        return users;
+    public List<User> getUsers() {
+        return service.getStorage().getUsers();
     }
 
     @PostMapping("/users")
     public User createUser(@RequestBody User user) {
-        validateUser(user);
-        if (users.contains(user)) {
-            log.info("Пользователь {} уже есть в базе", user.getLogin());
-            throw new ValidationException("Пользователь уже есть в базе");
+        service.getStorage().createUser(user);
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
         }
-        log.info("Пользователь {} успешно сохранен", user.getLogin());
-        user.setId(id);
-        users.add(user);
-        id++;
+        for (Integer id : user.getFriends()) {
+            if (id < 1 || service.getStorage().getUser(id) == null) {
+                user.getFriends().remove(id);
+            } else {
+                service.addFriends(id, user.getId());
+            }
+        }
         return user;
     }
 
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) {
-        validateUser(user);
-        if(!users.contains(user)) {
-            log.info("Пользователь {} не найден", user.getLogin());
-            throw new ValidationException("Пользователь " + user.getLogin() + "не найден");
+        service.getStorage().updateUser(user);
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
         }
-        users.remove(user);
-        users.add(user);
-        log.info("Пользователь {} успешно обновлен", user.getLogin());
+        for (Integer id : user.getFriends()) {
+            if (id < 1 || service.getStorage().getUser(id) == null) {
+                user.getFriends().remove(id);
+            } else {
+                service.addFriends(id, user.getId());
+            }
+        }
         return user;
     }
 
-    private void validateUser(User user) {
-        if(user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ") ) {
-            log.info("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
-            throw new ValidationException("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
-        }
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.info("Валидация {} не пройдена. Введите корректный email", user.getEmail());
-            throw new ValidationException("Валидация не пройдена. Введите корректный email");
-        }
+    @GetMapping("/users/{id}")
+    public User getUserById(@PathVariable Integer id) {
+        return service.getStorage().getUser(id);
+    }
 
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable  Integer id, @PathVariable Integer friendId) {
+       return service.addFriends(id, friendId);
+    }
 
-        if (user.getBirthday() != null) {
-            if (user.getBirthday().isAfter(LocalDate.now())) {
-                log.info("Валидация {} не пройдена. День рождения не может быть позже текущего времени", user.getBirthday());
-                throw new ValidationException("Валидация не пройдена. День рождения не может быть позже текущего времени");
-            }
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable  Integer id, @PathVariable Integer friendId) {
+        return service.deleteFriends(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public List<User> getFriendsByUser(@PathVariable Integer id) {
+        return service.getFriendsByUser(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable  Integer id, @PathVariable Integer otherId) {
+        return  service.getCommonFriend(id, otherId);
     }
 }
