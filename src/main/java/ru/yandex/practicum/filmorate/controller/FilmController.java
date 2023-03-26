@@ -17,7 +17,7 @@ public class FilmController {
     private FilmService service;
 
     @Autowired
-    public FilmController( FilmService service) {
+    public FilmController(FilmService service) {
         this.service = service;
     }
 
@@ -39,10 +39,12 @@ public class FilmController {
         service.getFilmStorage().updateFilm(film);
         return film;
     }
+
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Integer id) {
         return service.getFilmStorage().findFilm(id);
     }
+
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable Integer id, @PathVariable  Integer userId) {
         return service.addLike(id,userId);
@@ -52,6 +54,7 @@ public class FilmController {
     public Film deleteLike(@PathVariable  Integer id, @PathVariable  Integer userId) {
         return  service.deleteLike(id,userId);
     }
+
     @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam (required = false) Integer count) {
        return service.getPopularFilm(count);
