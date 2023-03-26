@@ -45,7 +45,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilm(Integer count) {
-        if (count == null ) {
+        if (count == null) {
             count = 10;
         }
 
