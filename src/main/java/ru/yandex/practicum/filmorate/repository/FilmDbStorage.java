@@ -1,5 +1,4 @@
 package ru.yandex.practicum.filmorate.repository;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,8 +11,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
-
-import javax.persistence.criteria.CriteriaBuilder;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,15 +22,18 @@ import static ru.yandex.practicum.filmorate.service.ValidationClass.validateFilm
 @Slf4j
 @Component
 @Qualifier("filmDbStorage")
-public class FilmDbStorage implements  FilmStorage{
+public class FilmDbStorage implements  FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
     public List<Film> getFilms() {
-        List<Film> allFilms = jdbcTemplate.query("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id JOIN RATING r ON r.ID_RATING =f.rating", getRMs());
+        List<Film> allFilms = jdbcTemplate.query("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT " +
+                "JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id " +
+                "JOIN RATING r ON r.ID_RATING =f.rating", getRMs());
         Set<Film> unikFilms = new HashSet<>(allFilms);
         List<Film> films = new ArrayList<>();
         for (Film film : unikFilms) {
@@ -47,27 +47,28 @@ public class FilmDbStorage implements  FilmStorage{
         validateFilms(film);
 
 
-        if(getFilms().contains(film)) {
+        if (getFilms().contains(film)) {
             log.info("Фильм  уже есть в списке");
             throw new ValidationException("Фильм  уже есть в списке");
         }
         int idRat = film.getMpa().getId();
-        System.out.println(idRat+ "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO FILMS (NAME, DESCRIPTION, DURATION, RELEASEDATE, RATING) VALUES (?, ?, ?, ?, ?)", new String[]{"id"});
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO FILMS (NAME, DESCRIPTION, DURATION, RELEASEDATE, RATING) " +
+                    "VALUES (?, ?, ?, ?, ?)", new String[]{"id"});
             preparedStatement.setString(1, film.getName());
             preparedStatement.setString(2, film.getDescription());
             preparedStatement.setInt(3, film.getDuration());
             preparedStatement.setDate(4, Date.valueOf(film.getReleaseDate()));
-            preparedStatement.setInt(5, idRat );
+            preparedStatement.setInt(5, idRat);
             return preparedStatement;
     }, keyHolder);
         int id = keyHolder.getKey().intValue();
         film.setId(id);
-        if (film.getGenres() != null ) {
+        if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)",film.getId(),genre.getId());
+                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)"
+                        , film.getId(), genre.getId());
             }
         }
         return findFilm(id);
@@ -75,38 +76,42 @@ public class FilmDbStorage implements  FilmStorage{
 
     public Film updateFilm(Film film) {
         validateFilms(film);
-        if(!getFilms().contains(film)) {
+        if (!getFilms().contains(film)) {
             log.info("Фильм с id {} не найден", film.getId());
             throw new FilmNotFoundException("Фильм не найден");
         }
 
-        jdbcTemplate.update("UPDATE films SET name = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, RATING = ?", film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId());
+        jdbcTemplate.update("UPDATE films SET name = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, RATING = ?"
+                , film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId());
         if (film.getLikes() != null) {
             for (Integer id : film.getLikes()) {
                 jdbcTemplate.update("insert into films_likes (film_id, user_id) values (?, ?)", film.getId(), id);
             }
         }
 
-        if (film.getGenres() != null ) {
+        if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)",film.getId(), genre.getId());
+                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)",
+                        film.getId(), genre.getId());
             }
         }
         return findFilm(film.getId());
     }
 
     public Film findFilm(Integer id) {
-        Film film  = jdbcTemplate.queryForObject("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id JOIN RATING r ON r.ID_RATING =f.rating where id = ?", getRM(), id);
+        Film film  = jdbcTemplate.queryForObject("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT " +
+                "JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id " +
+                "JOIN RATING r ON r.ID_RATING =f.rating where id = ?", getRM(), id);
 
         return  film;
     }
 
-    public List<Genre> getGenres()  {
-        List<Genre> genres = jdbcTemplate.query("Select * from genre",getRowGenre());
+    public List<Genre> getGenres() {
+        List<Genre> genres = jdbcTemplate.query("Select * from genre", getRowGenre());
         return genres;
     }
 
-    public Genre getGenre (Integer id) {
+    public Genre getGenre(Integer id) {
         Genre genre = jdbcTemplate.queryForObject("Select * from genre where id_genre = ?", getRowGenre(),id);
         return genre;
     }

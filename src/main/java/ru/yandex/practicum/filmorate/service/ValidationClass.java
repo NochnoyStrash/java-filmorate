@@ -26,9 +26,10 @@ public class ValidationClass {
         }
 
         if (film.getReleaseDate() != null) {
-            if (film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))) {
+            if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
                 log.info("Фильм {} не прошел валидацию.Дата создания должна быть позже 1895.12.28", film.getName());
-                throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию.Дата создания должна быть позже 1895.12.28");
+                throw new ValidationException("Фильм " + film.getName() +
+                        " не прошел валидацию.Дата создания должна быть позже 1895.12.28");
             }
 
         }

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFounfException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -53,8 +52,9 @@ public class UserService {
         User user = storage.getUser(userId);
 
         user.getFriends().stream().forEach((id) -> {
-            if (id > 0)
-            friendsByUser.add(storage.getUser(id));
+            if (id > 0) {
+                friendsByUser.add(storage.getUser(id));
+            }
         });
 
         return friendsByUser;
