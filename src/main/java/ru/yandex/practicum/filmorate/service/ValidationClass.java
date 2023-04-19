@@ -39,6 +39,7 @@ public class ValidationClass {
             throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Продожительность не может быть отрицательной");
         }
     }
+
     public static void validateUser(User user) {
         if (user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ")) {
             log.info("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
