@@ -67,8 +67,8 @@ public class FilmDbStorage implements  FilmStorage {
         film.setId(id);
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)"
-                        , film.getId(), genre.getId());
+                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)",
+                        film.getId(), genre.getId());
             }
         }
         return findFilm(id);
@@ -81,8 +81,8 @@ public class FilmDbStorage implements  FilmStorage {
             throw new FilmNotFoundException("Фильм не найден");
         }
 
-        jdbcTemplate.update("UPDATE films SET name = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, RATING = ?"
-                , film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId());
+        jdbcTemplate.update("UPDATE films SET name = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, RATING = ?",
+                film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId());
         if (film.getLikes() != null) {
             for (Integer id : film.getLikes()) {
                 jdbcTemplate.update("insert into films_likes (film_id, user_id) values (?, ?)", film.getId(), id);
@@ -112,7 +112,7 @@ public class FilmDbStorage implements  FilmStorage {
     }
 
     public Genre getGenre(Integer id) {
-        Genre genre = jdbcTemplate.queryForObject("Select * from genre where id_genre = ?", getRowGenre(),id);
+        Genre genre = jdbcTemplate.queryForObject("Select * from genre where id_genre = ?", getRowGenre(), id);
         return genre;
     }
 
@@ -173,7 +173,7 @@ public class FilmDbStorage implements  FilmStorage {
                         .build();
                 do {
                     Genre genre = new Genre();
-                    if (rs.getInt("id_genre") >0) {
+                    if (rs.getInt("id_genre") > 0) {
                         genre.setId(rs.getInt("id_genre"));
                         film.getGenres().add(genre);
                     }
