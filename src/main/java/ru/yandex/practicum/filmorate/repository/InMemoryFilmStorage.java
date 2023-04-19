@@ -60,6 +60,7 @@ public class InMemoryFilmStorage implements  FilmStorage  {
     public List<Genre> getGenres() {
         return null;
     }
+
     public  Genre getGenre(Integer id) {
         return null;
     }
