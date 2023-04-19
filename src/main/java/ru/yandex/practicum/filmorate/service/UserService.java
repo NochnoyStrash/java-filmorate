@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserNotFounfException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -12,19 +13,18 @@ import java.util.List;
 
 @Service
 public class UserService {
+    @Autowired
     private UserStorage storage;
 
-    @Autowired
+
     public UserService(UserStorage storage) {
         this.storage = storage;
     }
 
     public User addFriends(Integer userId1, Integer userId2) {
         User user1;
-        User user2;
         try {
             user1 = storage.getUser(userId1);
-            user2 = storage.getUser(userId2);
         }  catch (UserNotFounfException e) {
         throw new UserNotFounfException(e.getMessage());
     }
@@ -33,24 +33,17 @@ public class UserService {
                 user1.setFriends(new HashSet<>());
             }
             user1.getFriends().add(userId2);
-            if (user2.getFriends() == null) {
-                user2.setFriends(new HashSet<>());
-            }
-            user2.getFriends().add(userId1);
+
+            storage.updateUser(user1);
             return storage.getUser(userId1);
     }
 
     public User deleteFriends(Integer userId1, Integer userId2) {
         User user1 = storage.getUser(userId1);
-        User user2 = storage.getUser(userId2);
-        if (user1.getFriends() == null) {
-            user1.setFriends(new HashSet<>());
-        } else if (user2.getFriends() == null) {
-            user2.setFriends(new HashSet<>());
-        } else {
+        if (user1.getFriends() != null) {
             user1.getFriends().remove(userId2);
-            user2.getFriends().remove(userId1);
         }
+        storage.updateUser(user1);
         return storage.getUser(userId1);
 
     }

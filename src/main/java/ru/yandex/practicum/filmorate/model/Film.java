@@ -23,6 +23,12 @@ public class Film {
     private int duration;
 
     @EqualsAndHashCode.Exclude
+    private Set<Genre> genres;
+
+    @EqualsAndHashCode.Exclude
+    private Rating mpa;
+
+    @EqualsAndHashCode.Exclude
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
 

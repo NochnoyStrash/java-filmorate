@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFounfException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -10,8 +11,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+import static ru.yandex.practicum.filmorate.service.ValidationClass.validateUser;
+
+
 @Slf4j
+
 public class InMemoryUserStorage implements  UserStorage {
     private int id = 1;
     private List<User> users = new ArrayList<>();
@@ -53,25 +57,9 @@ public class InMemoryUserStorage implements  UserStorage {
                 .findFirst().orElseThrow(() -> new UserNotFounfException("Пользователь с ID = " + id + " не найден."));
     }
 
-    private void validateUser(User user) {
-        if (user.getLogin() == null || (user.getLogin().isBlank()) || user.getLogin().contains(" ")) {
-            log.info("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
-            throw new ValidationException("Валидация не пройдена. Login не может быть пустым или содержать пробелы");
-        }
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.info("Валидация {} не пройдена. Введите корректный email", user.getEmail());
-            throw new ValidationException("Валидация не пройдена. Введите корректный email");
-        }
-
-
-        if (user.getBirthday() != null) {
-            if (user.getBirthday().isAfter(LocalDate.now())) {
-                log.info("Валидация {} не пройдена. День рождения не может быть позже текущего времени", user.getBirthday());
-                throw new ValidationException("Валидация не пройдена. День рождения не может быть позже текущего времени");
-            }
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    public List<User> deleteUser(Integer id) {
+        return null;
     }
+
+
 }

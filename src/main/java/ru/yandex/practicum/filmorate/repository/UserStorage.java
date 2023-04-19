@@ -12,4 +12,6 @@ public interface UserStorage {
     User updateUser(User user);
 
     User getUser(Integer id);
+
+    List<User> deleteUser(Integer id);
 }

@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Data
 @Builder
+
 public class User {
     private int id;
     @EqualsAndHashCode.Exclude
@@ -23,4 +24,5 @@ public class User {
     @EqualsAndHashCode.Exclude
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
 }

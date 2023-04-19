@@ -28,7 +28,7 @@ public class UserController {
 
     @PostMapping("/users")
     public User createUser(@RequestBody User user) {
-        service.getStorage().createUser(user);
+        User newUser = service.getStorage().createUser(user);
         if (user.getFriends() == null) {
             user.setFriends(new HashSet<>());
         }
@@ -39,22 +39,13 @@ public class UserController {
                 service.addFriends(id, user.getId());
             }
         }
-        return user;
+        return newUser;
     }
 
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) {
         service.getStorage().updateUser(user);
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
-        }
-        for (Integer id : user.getFriends()) {
-            if (id < 1 || service.getStorage().getUser(id) == null) {
-                user.getFriends().remove(id);
-            } else {
-                service.addFriends(id, user.getId());
-            }
-        }
+
         return user;
     }
 
