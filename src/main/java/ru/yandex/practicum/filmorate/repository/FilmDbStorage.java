@@ -149,7 +149,7 @@ public class FilmDbStorage implements  FilmStorage {
         return new RowMapper<Rating>() {
             @Override
             public Rating mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Rating mpa = new Rating();
+                Rating mpa = Rating.builder().build();
                 mpa.setId(rs.getInt("id_rating"));
                 mpa.setName(rs.getString("name"));
                 return mpa;
