@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFounfException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -12,7 +13,7 @@ import static ru.yandex.practicum.filmorate.service.ValidationClass.validateUser
 
 
 @Slf4j
-
+@Component
 public class InMemoryUserStorage implements  UserStorage {
     private int id = 1;
     private List<User> users = new ArrayList<>();

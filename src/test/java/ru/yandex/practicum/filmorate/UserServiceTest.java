@@ -39,7 +39,7 @@ public class UserServiceTest {
     @Test
     public void shouldAddAndDeleteFriendsTest() {
         userService.addFriends(user.getId(),user1.getId());
-        assertTrue(user.getFriendsConfirm().contains(user1.getId()));
+        assertTrue(user.getFriends().contains(user1.getId()));
 
         final UserNotFounfException e = assertThrows(UserNotFounfException.class, new Executable() {
             @Override
@@ -58,8 +58,8 @@ public class UserServiceTest {
         });
         assertEquals("Пользователь с ID = -1 не найден.",ex.getMessage());
         userService.deleteFriends(user.getId(), user1.getId());
-        System.out.println(user.getFriendsConfirm());
-        assertTrue(user.getFriendsConfirm().isEmpty());
+        System.out.println(user.getFriends());
+        assertTrue(user.getFriends().isEmpty());
 
 
     }

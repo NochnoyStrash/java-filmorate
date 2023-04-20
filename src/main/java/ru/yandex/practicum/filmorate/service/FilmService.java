@@ -31,16 +31,12 @@ public class FilmService {
 
     public Film addLike(Integer filmId, Integer userId) {
         Film film = filmStorage.findFilm(filmId);
-        List<User> users = userStorage.getUsers();
+        User user = userStorage.getUser(userId);
 
         if (film.getLikes() == null) {
             film.setLikes(new HashSet<>());
         }
-        users.stream()
-                .filter(u -> u.getId() == userId)
-                .findFirst().orElseThrow(() -> new UserNotFounfException("Пользователь с ID = " + userId + " не найден."));
-
-        film.getLikes().add(userId);
+        film.getLikes().add(user.getId());
         filmStorage.updateFilm(film);
         return filmStorage.findFilm(filmId);
     }

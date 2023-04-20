@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.repository.UserStorage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -22,8 +23,10 @@ public class UserService {
 
     public User addFriends(Integer userId1, Integer userId2) {
         User user1;
+        User user2;
         try {
             user1 = storage.getUser(userId1);
+            user2 = storage.getUser(userId2);
         }  catch (UserNotFounfException e) {
         throw new UserNotFounfException(e.getMessage());
     }
@@ -39,6 +42,7 @@ public class UserService {
 
     public User deleteFriends(Integer userId1, Integer userId2) {
         User user1 = storage.getUser(userId1);
+        User user2 = storage.getUser(userId2);
         if (user1.getFriends() != null) {
             user1.getFriends().remove(userId2);
         }
@@ -61,12 +65,15 @@ public class UserService {
     }
 
     public List<User> getCommonFriend(Integer userId1, Integer userId2) {
-        ArrayList<User> commonFriends = new ArrayList<>();
-        User user = storage.getUser(userId2);
-        user.getFriends().stream().filter(i -> i > 1)
-                .filter(i -> storage.getUser(i).getFriends().contains(userId1))
-                .forEach(i -> commonFriends.add(storage.getUser(i)));
-        return commonFriends;
+        User user1 = storage.getUser(userId1);
+        User user2 = storage.getUser(userId2);
+        Set<Integer> uniqFrends = new HashSet<>(user1.getFriends());
+        uniqFrends.retainAll(user2.getFriends());
+        List<User> userFriends = new ArrayList<>();
+        for (Integer id : uniqFrends) {
+            userFriends.add(storage.getUser(id));
+        }
+        return userFriends;
     }
 
 

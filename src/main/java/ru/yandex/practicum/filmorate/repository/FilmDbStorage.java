@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,12 +17,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.service.ValidationClass.validateFilms;
 
 @Slf4j
 @Component
-@Qualifier("filmDbStorage")
+@Primary
 public class FilmDbStorage implements  FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -31,22 +33,17 @@ public class FilmDbStorage implements  FilmStorage {
 
 
     public List<Film> getFilms() {
-        List<Film> allFilms = jdbcTemplate.query("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT " +
-                "JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id " +
-                "JOIN RATING r ON r.ID_RATING =f.rating", getRMs());
-        Set<Film> unikFilms = new HashSet<>(allFilms);
+        List<Integer> numbers = getNumbers();
         List<Film> films = new ArrayList<>();
-        for (Film film : unikFilms) {
-            films.add(findFilm(film.getId()));
+        for (Integer id : numbers) {
+            films.add(findFilm(id));
         }
-        return films;
+        return films.stream().sorted((o, o2) -> o.getId() - o2.getId()).collect(Collectors.toList());
     }
 
 
     public Film addFilm(Film film) {
         validateFilms(film);
-
-
         if (getFilms().contains(film)) {
             log.info("Фильм  уже есть в списке");
             throw new ValidationException("Фильм  уже есть в списке");
@@ -76,29 +73,37 @@ public class FilmDbStorage implements  FilmStorage {
 
     public Film updateFilm(Film film) {
         validateFilms(film);
-        if (!getFilms().contains(film)) {
+        if (!getNumbers().contains(film.getId())) {
             log.info("Фильм с id {} не найден", film.getId());
             throw new FilmNotFoundException("Фильм не найден");
         }
-
-        jdbcTemplate.update("UPDATE films SET name = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, RATING = ?",
-                film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate(), film.getMpa().getId());
-        if (film.getLikes() != null) {
+        jdbcTemplate.update("UPDATE films SET name = ?, DESCRIPTION = ?, DURATION = ?, RELEASEDATE = ?, RATING = ? where id = ?",
+                film.getName(), film.getDescription(), film.getDuration(), film.getReleaseDate().toString(), film.getMpa().getId(), film.getId());
+        if (film.getLikes() == null || film.getLikes().isEmpty()) {
+            jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE FILM_ID = ?", film.getId());
+        } else {
+            jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE FILM_ID = ?", film.getId());
             for (Integer id : film.getLikes()) {
-                jdbcTemplate.update("insert into films_likes (film_id, user_id) values (?, ?)", film.getId(), id);
+                jdbcTemplate.update("MERGE INTO FILMS_LIKES KEY (FILM_ID, USER_ID) VALUES (?,?)", film.getId(), id);
             }
         }
 
-        if (film.getGenres() != null) {
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            jdbcTemplate.update("DELETE FROM FILMS_GENRE WHERE id_films = ?", film.getId());
+        } else {
+            jdbcTemplate.update("DELETE FROM FILMS_GENRE WHERE id_films = ?", film.getId());
             for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)",
+                jdbcTemplate.update("MERGE INTO FILMS_GENRE KEY (ID_FILMS, ID_GENRE) values (?, ?)",
                         film.getId(), genre.getId());
             }
         }
         return findFilm(film.getId());
     }
 
-    public Film findFilm(Integer id) {
+    public Film findFilm(Integer id) throws FilmNotFoundException {
+        if (!getNumbers().contains(id)) {
+            throw new FilmNotFoundException("Фильм с ID = " + id + " не найден.");
+        }
         Film film  = jdbcTemplate.queryForObject("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT " +
                 "JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id " +
                 "JOIN RATING r ON r.ID_RATING =f.rating where id = ?", getRM(), id);
@@ -112,7 +117,10 @@ public class FilmDbStorage implements  FilmStorage {
     }
 
     public Genre getGenre(Integer id) {
-        Genre genre = jdbcTemplate.queryForObject("Select * from genre where id_genre = ?", getRowGenre(), id);
+        if (!getGenres().stream().anyMatch(genre -> genre.getId() == id)) {
+            throw new  FilmNotFoundException("Жанра с таким ID = " + id + " не найден.");
+        }
+         Genre genre = jdbcTemplate.queryForObject("Select * from genre where id_genre = ?", getRowGenre(), id);
         return genre;
     }
 
@@ -122,8 +130,20 @@ public class FilmDbStorage implements  FilmStorage {
     }
 
     public Rating getMPA(Integer id) {
+        if (!getRatings().stream().anyMatch(rating -> rating.getId() == id)) {
+            throw  new FilmNotFoundException("Рейтинга с таким ID = " + id + " не найдено.");
+        }
         Rating rating = jdbcTemplate.queryForObject("Select * from rating where id_rating = ?", getRowRating(), id);
         return rating;
+    }
+
+    private List<Integer> getNumbers() {
+        return  jdbcTemplate.query("SELECT id FROM films", new RowMapper<Integer>() {
+            @Override
+            public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getInt("id");
+            }
+        });
     }
 
     private RowMapper<Rating> getRowRating() {
@@ -156,11 +176,8 @@ public class FilmDbStorage implements  FilmStorage {
         return new RowMapper<Film>() {
             @Override
             public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Rating mpa = new Rating();
-                mpa.setId(rs.getInt("RATING"));
-                mpa.setName(rs.getString("ratingName"));
 
-
+                Rating mpa = getMPA(rs.getInt("RATING"));
                 Film film = Film.builder()
                         .id(rs.getInt("id"))
                         .name(rs.getString("name"))
@@ -172,17 +189,15 @@ public class FilmDbStorage implements  FilmStorage {
                         .mpa(mpa)
                         .build();
                 do {
-                    Genre genre = new Genre();
-                    if (rs.getInt("id_genre") > 0) {
-                        genre.setId(rs.getInt("id_genre"));
+                    int id_genre = rs.getInt("id_genre");
+                    if (id_genre > 0) {
+                      Genre genre = getGenre(id_genre);
                         film.getGenres().add(genre);
                     }
 
                     if (rs.getInt("USER_ID") > 0) {
                         film.getLikes().add(rs.getInt("USER_ID"));
                     }
-
-
                 } while (rs.next());
 
                 return film;
@@ -190,27 +205,4 @@ public class FilmDbStorage implements  FilmStorage {
         };
     }
 
-
-    private RowMapper<Film> getRMs() {
-        return new RowMapper<Film>() {
-            @Override
-            public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Rating mpa = new Rating();
-                mpa.setId(rs.getInt("RATING"));
-                mpa.setName(rs.getString("ratingName"));
-                Film film = Film.builder()
-                        .id(rs.getInt("id"))
-                        .name(rs.getString("name"))
-                        .description(rs.getString("DESCRIPTION"))
-                        .duration(rs.getInt("DURATION"))
-                        .genres(new HashSet<>())
-                        .likes(new HashSet<>())
-                        .releaseDate(rs.getDate("RELEASEDATE").toLocalDate())
-                        .mpa(mpa)
-                        .build();
-
-                return film;
-            }
-        };
-    }
 }
