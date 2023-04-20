@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.repository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -189,9 +188,9 @@ public class FilmDbStorage implements  FilmStorage {
                         .mpa(mpa)
                         .build();
                 do {
-                    int id_genre = rs.getInt("id_genre");
-                    if (id_genre > 0) {
-                      Genre genre = getGenre(id_genre);
+                    int idGenre = rs.getInt("id_genre");
+                    if (idGenre > 0) {
+                      Genre genre = getGenre(idGenre);
                         film.getGenres().add(genre);
                     }
 
