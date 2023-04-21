@@ -11,7 +11,6 @@ import java.util.List;
 
 import static ru.yandex.practicum.filmorate.service.ValidationClass.validateUser;
 
-
 @Slf4j
 @Component
 public class InMemoryUserStorage implements  UserStorage {

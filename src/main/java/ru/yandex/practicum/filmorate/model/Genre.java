@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-
 public class Genre {
     @EqualsAndHashCode.Include
     private int id;

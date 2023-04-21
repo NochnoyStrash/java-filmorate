@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -61,12 +62,22 @@ public class FilmDbStorage implements  FilmStorage {
     }, keyHolder);
         int id = keyHolder.getKey().intValue();
         film.setId(id);
-        if (film.getGenres() != null) {
-            for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update("insert into films_genre (id_films, id_genre) values (?, ?)",
-                        film.getId(), genre.getId());
-            }
+        if  (film.getGenres() != null) {
+            List<Genre> genres = new ArrayList<>(film.getGenres());
+            jdbcTemplate.batchUpdate("INSERT INTO FILMS_GENRE (id_films, id_genre) values (?, ?)", new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, genres.get(i).getId());
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return genres.size();
+                }
+            });
         }
+        log.info("Фильм {} добавлен в хранилище. ID = {}", film.getName(), film.getId());
         return findFilm(id);
     }
 
@@ -82,20 +93,40 @@ public class FilmDbStorage implements  FilmStorage {
             jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE FILM_ID = ?", film.getId());
         } else {
             jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE FILM_ID = ?", film.getId());
-            for (Integer id : film.getLikes()) {
-                jdbcTemplate.update("MERGE INTO FILMS_LIKES KEY (FILM_ID, USER_ID) VALUES (?,?)", film.getId(), id);
+            List<Integer> numbers = new ArrayList<>(film.getLikes());
+            jdbcTemplate.batchUpdate("MERGE INTO FILMS_LIKES KEY (FILM_ID, USER_ID) VALUES (?,?)", new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, numbers.get(i));
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return numbers.size();
+                }
+            });
             }
-        }
 
         if (film.getGenres() == null || film.getGenres().isEmpty()) {
             jdbcTemplate.update("DELETE FROM FILMS_GENRE WHERE id_films = ?", film.getId());
         } else {
             jdbcTemplate.update("DELETE FROM FILMS_GENRE WHERE id_films = ?", film.getId());
-            for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update("MERGE INTO FILMS_GENRE KEY (ID_FILMS, ID_GENRE) values (?, ?)",
-                        film.getId(), genre.getId());
+            List<Genre> genres = new ArrayList<>(film.getGenres());
+            jdbcTemplate.batchUpdate("MERGE INTO FILMS_GENRE KEY (ID_FILMS, ID_GENRE) values (?, ?)", new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2,genres.get(i).getId());
+                }
+
+                @Override
+                public int getBatchSize() {
+                    return genres.size();
+                }
+            });
             }
-        }
+        log.info("фильм с id = {} обновлен", film.getId());
         return findFilm(film.getId());
     }
 
@@ -106,7 +137,7 @@ public class FilmDbStorage implements  FilmStorage {
         Film film  = jdbcTemplate.queryForObject("SELECT *, r.NAME AS ratingName FROM FILMS f LEFT " +
                 "JOIN FILMS_LIKES fl ON f.ID =fl.FILM_ID LEFT JOIN FILMS_GENRE fg ON fg.id_films =f.id " +
                 "JOIN RATING r ON r.ID_RATING =f.rating where id = ?", getRM(), id);
-
+        log.info("Фильм с id = {} найден", film.getId());
         return  film;
     }
 
@@ -168,8 +199,6 @@ public class FilmDbStorage implements  FilmStorage {
             }
         };
     }
-
-
 
     private RowMapper<Film> getRM() {
         return new RowMapper<Film>() {

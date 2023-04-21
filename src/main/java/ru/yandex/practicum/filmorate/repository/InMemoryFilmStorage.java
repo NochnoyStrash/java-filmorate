@@ -9,7 +9,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.service.ValidationClass.validateFilms;
 
@@ -17,7 +20,6 @@ import static ru.yandex.practicum.filmorate.service.ValidationClass.validateFilm
 @Component
 public class InMemoryFilmStorage implements  FilmStorage  {
     private int id = 1;
-
 
     private List<Film> films = new ArrayList<>();
 
@@ -59,19 +61,35 @@ public class InMemoryFilmStorage implements  FilmStorage  {
     }
 
     public List<Genre> getGenres() {
-        return null;
+        List<Genre> genres = new ArrayList<>();
+        for (Film film : films) {
+            if (film.getGenres() != null) {
+                genres.addAll(film.getGenres());
+            }
+        }
+        Set<Genre> uniqGenre = new HashSet<>(genres);
+        List<Genre> collect = new ArrayList<>(uniqGenre);
+        return collect;
     }
 
     public  Genre getGenre(Integer id) {
-        return null;
+       return getGenres().get(id);
     }
 
     public List<Rating> getRatings() {
-        return null;
+        List<Rating> ratings = new ArrayList<>();
+        for (Film film : films) {
+            if (film.getMpa() != null) {
+                ratings.add(film.getMpa());
+            }
+        }
+        Set<Rating> uniqRating = new HashSet<>(ratings);
+        List<Rating> collect = new ArrayList<>(uniqRating);
+        return collect;
     }
 
     public Rating getMPA(Integer id) {
-        return null;
+        return getRatings().get(id);
     }
 
 }

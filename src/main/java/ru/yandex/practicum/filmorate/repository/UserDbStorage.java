@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -73,6 +74,19 @@ public class UserDbStorage implements UserStorage {
                 jdbcTemplate.update("DELETE FROM USER_FRENDS WHERE USER_ID = ?", user.getId());
             } else {
                 jdbcTemplate.update("DELETE FROM USER_FRENDS WHERE USER_ID = ?", user.getId());
+                List<Integer> idUsers = new ArrayList<>(user.getFriends());
+                jdbcTemplate.batchUpdate("MERGE INTO USER_FRENDS KEY (USER_ID, USER_FRIENDS_ID) VALUES (?, ?)", new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, user.getId());
+                        ps.setInt(2, idUsers.get(i));
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return idUsers.size();
+                    }
+                });
                 for (Integer id : user.getFriends()) {
                     if (id > 0) {
                         jdbcTemplate.update("MERGE INTO USER_FRENDS KEY (USER_ID, USER_FRIENDS_ID) VALUES (?, ?)",

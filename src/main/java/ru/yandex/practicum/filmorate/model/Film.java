@@ -14,7 +14,7 @@ public class Film {
     private int id;
     @EqualsAndHashCode.Exclude
     private Set<Integer> likes;
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Include
     private String name;
     @EqualsAndHashCode.Exclude
     private String description;
@@ -28,7 +28,7 @@ public class Film {
     @EqualsAndHashCode.Exclude
     private Rating mpa;
 
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Include
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
 
