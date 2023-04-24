@@ -32,8 +32,8 @@ public class UserServiceTest {
                 .name("Madama")
                 .birthday(LocalDate.of(1996,7,25))
                 .build();
-        userService.getStorage().createUser(user);
-        userService.getStorage().createUser(user1);
+        userService.createUser(user);
+        userService.createUser(user1);
     }
 
     @Test
@@ -79,8 +79,8 @@ public class UserServiceTest {
                 .name("Vudu")
                 .birthday(LocalDate.of(1994,10,25))
                 .build();
-        userService.getStorage().createUser(user2);
-        userService.getStorage().createUser(user3);
+        userService.createUser(user2);
+        userService.createUser(user3);
         userService.addFriends(1,2);
         userService.addFriends(1,4);
         userService.addFriends(3,2);
@@ -106,8 +106,8 @@ public class UserServiceTest {
                 .name("Vudu")
                 .birthday(LocalDate.of(1994,10,25))
                 .build();
-        userService.getStorage().createUser(user2);
-        userService.getStorage().createUser(user3);
+        userService.createUser(user2);
+        userService.createUser(user3);
         userService.addFriends(user.getId(),user1.getId());
         userService.addFriends(user.getId(),user2.getId());
         userService.addFriends(user.getId(),user3.getId());

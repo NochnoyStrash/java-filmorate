@@ -5,16 +5,20 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.service.ValidationClass.validateFilms;
 
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements  FilmStorage  {
     private int id = 1;
-    private static int MAX_LENTH_DESCRIPTION = 200;
 
     private List<Film> films = new ArrayList<>();
 
@@ -55,32 +59,36 @@ public class InMemoryFilmStorage implements  FilmStorage  {
 
     }
 
-    private void validateFilms(Film film) {
-        if (film.getName() != null) {
-            if (film.getName().isBlank()) {
-                log.info("Фильм не прошел валидацию. Название не может быть пустым");
-                throw new ValidationException("Фильм не прошел валидацию. Название не может быть пустым");
+    public List<Genre> getGenres() {
+        List<Genre> genres = new ArrayList<>();
+        for (Film film : films) {
+            if (film.getGenres() != null) {
+                genres.addAll(film.getGenres());
             }
         }
-        if (film.getDescription() != null) {
-            if (film.getDescription().length() > MAX_LENTH_DESCRIPTION) {
-                log.info("Фильм {}  не прошел валидацию. В описании более 200 символов", film.getName());
-                throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Более 200 символов");
+        Set<Genre> uniqGenre = new HashSet<>(genres);
+        List<Genre> collect = new ArrayList<>(uniqGenre);
+        return collect;
+    }
+
+    public  Genre getGenre(Integer id) {
+       return getGenres().get(id);
+    }
+
+    public List<Rating> getRatings() {
+        List<Rating> ratings = new ArrayList<>();
+        for (Film film : films) {
+            if (film.getMpa() != null) {
+                ratings.add(film.getMpa());
             }
         }
+        Set<Rating> uniqRating = new HashSet<>(ratings);
+        List<Rating> collect = new ArrayList<>(uniqRating);
+        return collect;
+    }
 
-        if (film.getReleaseDate() != null) {
-            if (film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))) {
-                log.info("Фильм {} не прошел валидацию.Дата создания должна быть позже 1895.12.28", film.getName());
-                throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию.Дата создания должна быть позже 1895.12.28");
-            }
-
-        }
-
-        if (film.getDuration() < 0) {
-            log.info("Фильм {} не прошел валидацию. Продолжительность не может быть отрицательной", film.getName());
-            throw new ValidationException("Фильм " + film.getName() + " не прошел валидацию. Продожительность не может быть отрицательной");
-        }
+    public Rating getMPA(Integer id) {
+        return getRatings().get(id);
     }
 
 }

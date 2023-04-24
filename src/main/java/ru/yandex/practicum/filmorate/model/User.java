@@ -14,7 +14,7 @@ public class User {
     private int id;
     @EqualsAndHashCode.Exclude
     private Set<Integer> friends;
-    @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Include
     private String email;
     @EqualsAndHashCode.Exclude
     private String login;
@@ -23,4 +23,5 @@ public class User {
     @EqualsAndHashCode.Exclude
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
 }

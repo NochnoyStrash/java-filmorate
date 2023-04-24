@@ -7,58 +7,51 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private FilmService service;
+    private final FilmService filmService;
 
     @Autowired
     public FilmController(FilmService service) {
-        this.service = service;
+        this.filmService = service;
     }
 
-    private List<Film> films = new ArrayList<>();
-
-    @GetMapping
+    @GetMapping("/films")
     public List<Film> getFilms() {
-        return service.getFilmStorage().getFilms();
+        return filmService.getFilms();
     }
 
-    @PostMapping
+    @PostMapping("/films")
     public Film addFilm(@RequestBody Film film) {
-        service.getFilmStorage().addFilm(film);
-        return film;
+        return filmService.addFilm(film);
     }
 
-    @PutMapping
+    @PutMapping("/films")
     public Film updateFilm(@RequestBody Film film)  {
-        service.getFilmStorage().updateFilm(film);
-        return film;
+        return filmService.updateFilm(film);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/films/{id}")
     public Film getFilmById(@PathVariable Integer id) {
-        return service.getFilmStorage().findFilm(id);
+        return filmService.findFilm(id);
     }
 
-    @PutMapping("/{id}/like/{userId}")
+    @PutMapping("/films/{id}/like/{userId}")
     public Film addLike(@PathVariable Integer id, @PathVariable  Integer userId) {
-        return service.addLike(id,userId);
+        return filmService.addLike(id,userId);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
+    @DeleteMapping("/films/{id}/like/{userId}")
     public Film deleteLike(@PathVariable  Integer id, @PathVariable  Integer userId) {
-        return  service.deleteLike(id,userId);
+        return  filmService.deleteLike(id,userId);
     }
 
-    @GetMapping("/popular")
+    @GetMapping("/films/popular")
     public List<Film> getPopularFilms(@RequestParam (required = false) Integer count) {
-       return service.getPopularFilm(count);
+       return filmService.getPopularFilm(count);
     }
-
 
 }

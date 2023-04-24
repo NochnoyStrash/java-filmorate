@@ -31,7 +31,7 @@ public class FilmServiceTest {
                 .releaseDate(LocalDate.of(2004,5,15))
                 .duration(45)
                 .build();
-        filmService.getFilmStorage().addFilm(film1);
+        filmService.addFilm(film1);
 
         film2 = Film.builder()
                 .name("Моя прекрасная няня 2")
@@ -39,23 +39,23 @@ public class FilmServiceTest {
                 .releaseDate(LocalDate.of(2004,5,15))
                 .duration(45)
                 .build();
-        filmService.getFilmStorage().addFilm(film2);
+        filmService.addFilm(film2);
         user1 = User.builder().name("Marina")
                 .email("marina@mail.ru")
                 .birthday(LocalDate.of(1995,8,22))
                 .login("Novak")
                 .build();
-        filmService.getUserStorage().createUser(user1);
+        filmService.createUser(user1);
 
     }
 
     @Test
     public void findFilmTest() {
-        assertEquals(filmService.getFilmStorage().findFilm(film1.getId()), film1,"фильм не найден");
+        assertEquals(filmService.findFilm(film1.getId()), film1,"фильм не найден");
         final FilmNotFoundException e = assertThrows(FilmNotFoundException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                filmService.getFilmStorage().findFilm(999);
+                filmService.findFilm(999);
             }
         });
         assertEquals("Фильм с таким 999 не найден.", e.getMessage());
@@ -94,7 +94,7 @@ public class FilmServiceTest {
                 .birthday(LocalDate.of(1995, 8, 22))
                 .login("Novak2")
                 .build();
-        filmService.getUserStorage().createUser(user2);
+        filmService.createUser(user2);
 
         User user3 = User.builder()
                 .name("Marina3")
@@ -102,7 +102,7 @@ public class FilmServiceTest {
                 .birthday(LocalDate.of(1995, 8, 22))
                 .login("Novak3")
                 .build();
-        filmService.getUserStorage().createUser(user3);
+        filmService.createUser(user3);
 
         filmService.addLike(film1.getId(), user1.getId());
         filmService.addLike(film1.getId(), user2.getId());
